@@ -13,8 +13,8 @@ const Home = ({ backgroundColor, setCountry, country }) => {
   const countryUrl = "https://restcountries.com/v3.1/all";
   const countrySearch = "https://restcountries.com/v3.1/name/";
   const countryFilterByRegionUrl = "https://restcountries.com/v3.1/region/";
-  const getIndependentCountryUrl =
-    "https://restcountries.com/v3.1/independent?status=true";
+  // const getIndependentCountryUrl =
+  //   "https://restcountries.com/v3.1/independent?status=true";
 
   // get all countries function/feature
   useEffect(() => {
@@ -126,17 +126,32 @@ const Home = ({ backgroundColor, setCountry, country }) => {
   const customStyles = (backgroundColor) => ({
     control: (provided) => ({
       ...provided,
+      // width:'40%',
       border: "none", // Remove border
       boxShadow: "none", // Remove shadow
       "&:hover": { border: "none" },
       backgroundColor: backgroundColor ? "" : "", // bg-darkblue or bg-white
       color: backgroundColor ? "hsl(0, 0%, 100%)" : "hsl(200, 15%, 8%)", // text color (text-text vs text-lightmodetext)
     }),
+
     placeholder: (provided) => ({
       ...provided,
       color: backgroundColor ? "hsl(0, 0%, 100%)" : "hsl(200, 15%, 8%)", // placeholder-text vs placeholder-lightmodetext
       fontSize: "14px",
     }),
+
+    singleValue: (provided) => ({
+      ...provided,
+      color: backgroundColor ? '#fff' : '#000',  // Text color for the selected value in the control
+    }),
+
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: backgroundColor ? 'navbar' : '#fff',
+      marginLeft:'-12px',
+      width:'105%'
+    }),
+
     option: (provided, state) => ({
       ...provided,
       backgroundColor: state.isFocused
@@ -192,7 +207,7 @@ const Home = ({ backgroundColor, setCountry, country }) => {
         <div
           className={`${
             backgroundColor ? "bg-darkblue" : "bg-text"
-          } mr-10 rounded-[5px]`}
+          } sm:ml-0 ml-4 sm:mr-10 py-2 sm:py-0 rounded-[5px] w-[50%] md:w-[30%] lg:w-[17%]  `}
         >
           <Select
             className={`sm:mr-10 ml-4  `}
@@ -207,7 +222,7 @@ const Home = ({ backgroundColor, setCountry, country }) => {
       </main>
 
       <div
-        className={`flex flex-wrap flex-row py-5 md:gap-x-16 sm:py-0 gap-y-4 pb-7 pr-8 ${
+        className={`flex flex-wrap flex-row py-5 md:gap-x-36 lg:gap-x-12 sm:py-0 gap-y-4 pb-7 pr-8 pl-8 sm:pl-0  ${
           backgroundColor
             ? "bg-darkmodebackground && text-text && placeholder-text"
             : "bg-lightmodebackground && text-lightmodetext && placeholder-lightmodetext"
