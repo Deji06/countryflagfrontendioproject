@@ -3,30 +3,35 @@ import { FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 
-const Home = ({ backgroundColor, setCountry, country }) => {
+const Home = ({ backgroundColor }) => {
   const navigate = useNavigate();
 
   // states and endpoints
+  const [country, setCountry] = useState([]);
   const [search, setSearch] = useState("");
   const [region, setRegion] = useState("");
+  const [error, setError] = useState(null);
   const [isClearable, setIsClearable] = useState(true);
-  const countryUrl = "https://restcountries.com/v3.1/all";
   const countrySearch = "https://restcountries.com/v3.1/name/";
   const countryFilterByRegionUrl = "https://restcountries.com/v3.1/region/";
-  // const getIndependentCountryUrl =
-  //   "https://restcountries.com/v3.1/independent?status=true";
 
   // get all countries function/feature
   useEffect(() => {
+    const countryUrl = "https://restcountries.com/v3.1/all";
     const getCountryData = async () => {
       try {
         const resp = await fetch(countryUrl);
+        if (!resp.ok) {
+          throw new Error(`HTTP error! Status: ${resp.status}`);
+        }
         const countries = await resp.json();
+        // console.log("country data:", countries);
         if (region === "" && search === "") {
           setCountry(countries);
         }
       } catch (error) {
         console.error("error fetching data", error);
+        setError(error.message);
       }
     };
     getCountryData();
@@ -48,7 +53,7 @@ const Home = ({ backgroundColor, setCountry, country }) => {
     getRegions();
   }, [region]);
 
-  // console.log(country);
+  // console.log("all countries:", region);
   const options = [
     { value: "all", label: "All" },
     { value: "africa", label: "Africa" },
@@ -60,14 +65,13 @@ const Home = ({ backgroundColor, setCountry, country }) => {
 
   const handleChange = async (option) => {
     if (option.value === "all") {
-      console.log("Fetching all countries");
-      // No need to setRegion here for immediate fetch
-      setRegion("all"); // Update state but don't rely on it for fetch
+      // console.log("Fetching all countries");
+      setCountry(country); 
 
       try {
         const response = await fetch("https://restcountries.com/v3.1/all");
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
         setCountry(data); // Store fetched data
       } catch (error) {
         console.error("Error fetching all countries:", error);
@@ -82,7 +86,7 @@ const Home = ({ backgroundColor, setCountry, country }) => {
           `https://restcountries.com/v3.1/region/${option.value}`
         );
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
         setCountry(data); // Store fetched data
       } catch (error) {
         console.error("Error fetching region:", error);
@@ -94,7 +98,7 @@ const Home = ({ backgroundColor, setCountry, country }) => {
   // handle user search in the input field
   const handleUserSearch = (e) => {
     const userInput = e.target.value;
-    console.log(userInput);
+    // console.log(userInput);
     setSearch(userInput);
   };
 
@@ -112,15 +116,6 @@ const Home = ({ backgroundColor, setCountry, country }) => {
     };
     getCountryBySearch();
   }, [search]);
-
-  // getcountryinfo
-
-  const getCountryInfo = async () => {
-    navigate("/moreInfo");
-    const resp = await fetch(countryUrl);
-    const countries = await resp.json();
-    console.log(setCountry(countries));
-  };
 
   // react select customization
   const customStyles = (backgroundColor) => ({
@@ -142,14 +137,14 @@ const Home = ({ backgroundColor, setCountry, country }) => {
 
     singleValue: (provided) => ({
       ...provided,
-      color: backgroundColor ? '#fff' : '#000',  // Text color for the selected value in the control
+      color: backgroundColor ? "#fff" : "#000", // Text color for the selected value in the control
     }),
 
     menu: (provided) => ({
       ...provided,
-      backgroundColor: backgroundColor ? 'navbar' : '#fff',
-      marginLeft:'-12px',
-      width:'105%'
+      backgroundColor: backgroundColor ? "navbar" : "#fff",
+      marginLeft: "-12px",
+      width: "105%",
     }),
 
     option: (provided, state) => ({
@@ -170,6 +165,11 @@ const Home = ({ backgroundColor, setCountry, country }) => {
       fontSize: "12px",
     }),
   });
+
+  // getcountryinfo
+  const getCountryInfo = (country) => {
+    navigate(`/moreInfo/${country.name.common}`, { state: { country } });
+  };
 
   return (
     <>
@@ -228,41 +228,43 @@ const Home = ({ backgroundColor, setCountry, country }) => {
             : "bg-lightmodebackground && text-lightmodetext && placeholder-lightmodetext"
         } `}
       >
-        {country.length > 0 ? (
-          country.map((country, index) => {
-            return (
-              <div
-                onClick={getCountryInfo}
-                key={index}
-                className={`w-[250px] cursor-pointer ${
-                  backgroundColor
-                    ? "bg-darkblue && text-text && placeholder-text"
-                    : "bg-text && text-lightmodetext && placeholder-lightmodetext"
-                }} sm:ml-7 sm:mt-4 mt-6 m-auto pb-8`}
-              >
-                <img
-                  src={country.flags.png}
-                  alt="country flag"
-                  className="w-[100vw] h-[200px]"
-                />
-                <div className="pl-3 mt-3">
-                  <h1 className="capitalize text-[18px]">
-                    {country.name.common}
-                  </h1>
-                  <div className="mt-3">
-                    <p className="text-[16px]">
-                      Population: {country.population}
-                    </p>
-                    <p>Region: {country.region}</p>
-                    <p>Capital: {country.capital}</p>
-                  </div>
+        {error && (
+          <p className="text-red-900 mt-10 text-[30px]">
+            network connection, try again later
+          </p>
+        )}
+
+        {country.map((country, index) => {
+          return (
+            <div
+              onClick={() => getCountryInfo(country)}
+              key={index}
+              className={`w-[250px] cursor-pointer ${
+                backgroundColor
+                  ? "bg-darkblue && text-text && placeholder-text"
+                  : "bg-text && text-lightmodetext && placeholder-lightmodetext"
+              }} sm:ml-7 sm:mt-4 mt-6 m-auto pb-8`}
+            >
+              <img
+                src={country.flags.png}
+                alt="country flag"
+                className="w-[100vw] h-[200px]"
+              />
+              <div className="pl-3 mt-3">
+                <h1 className="capitalize text-[18px]">
+                  {country.name.common}
+                </h1>
+                <div className="mt-3">
+                  <p className="text-[16px]">
+                    Population: {country.population}
+                  </p>
+                  <p>Region: {country.region}</p>
+                  <p>Capital: {country.capital}</p>
                 </div>
               </div>
-            );
-          })
-        ) : (
-          <p className="text-[2rem] capitalize m-auto">no country</p>
-        )}
+            </div>
+          );
+        })}
       </div>
     </>
   );

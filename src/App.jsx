@@ -25,15 +25,15 @@ function App() {
           path="/"
           element={
             <div className={`${backgroundColor ? "bg-navbar" : "bg-white"}}  `}>
-              <Home backgroundColor={backgroundColor} setCountry={setCountry} country={country}/>
+              <Home backgroundColor={backgroundColor}/>
             </div>
           }
         />
         <Route
-          path="/moreInfo"
+          path="/moreInfo/:name"
           element={
             <div className={`${backgroundColor ? "bg-navbar" : "bg-white"}}  `}>
-              <MoreInfo  backgroundColor={backgroundColor} country={country} setCountry={setCountry}/>
+              <MoreInfo  backgroundColor={backgroundColor}/>
             </div>
           }
         />
